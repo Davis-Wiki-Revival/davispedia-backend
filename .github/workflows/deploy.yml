@@ -46,25 +46,38 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   deploy:
-    name: Deploy to DigitalOcean via Tailscale
-    needs: build-and-push
-    runs-on: ubuntu-latest
+  name: Deploy to DigitalOcean via Tailscale
+  needs: build-and-push
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
+  steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DO_TAILSCALE_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd ${{ secrets.DEPLOY_PATH }}
-            docker compose -f compose.prod.yml pull mediawiki
-            docker compose -f compose.prod.yml up -d mediawiki
+    - name: Connect to Tailscale
+      uses: tailscale/github-action@v2
+      with:
+        oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+        oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+        tags: tag:ci
+
+    - name: Copy production compose file
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.DO_TAILSCALE_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        source: "compose.prod.yml"
+        target: ${{ secrets.DEPLOY_PATH }}
+
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.DO_TAILSCALE_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          set -e
+          cd "${{ secrets.DEPLOY_PATH }}"
+          docker compose -f compose.prod.yml pull
+          docker compose -f compose.prod.yml up -d
