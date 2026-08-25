@@ -24,22 +24,22 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Build Docker image
-          run: |
-            FRONTEND_REF="${{ github.event.client_payload.frontend_sha }}"
+        run: |
+          FRONTEND_REF="${{ github.event.client_payload.frontend_sha }}"
 
-            if [ -z "${FRONTEND_REF}" ]; then
-              FRONTEND_REF="main"
-            fi
+          if [ -z "${FRONTEND_REF}" ]; then
+            FRONTEND_REF="main"
+          fi
 
-            echo "Building with frontend ref: ${FRONTEND_REF}"
+          echo "Building with frontend ref: ${FRONTEND_REF}"
 
-            docker build \
-              --build-arg FRONTEND_REF="${FRONTEND_REF}" \
-              --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
-              --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
-              --label "org.davispedia.frontend.revision=${FRONTEND_REF}" \
-              -t "${DEPLOY_IMAGE}" \
-              .
+          docker build \
+            --build-arg FRONTEND_REF="${FRONTEND_REF}" \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
+            --label "org.davispedia.frontend.revision=${FRONTEND_REF}" \
+            -t "${DEPLOY_IMAGE}" \
+            .
       - name: Export Docker image
         run: |
           docker save "${DEPLOY_IMAGE}" | gzip -1 > "${IMAGE_ARCHIVE}"
