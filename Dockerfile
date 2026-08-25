@@ -6,7 +6,18 @@ RUN npm install && npm run build
 FROM mediawiki:1.46
 
 RUN mkdir -p /var/www/html/extensions/DavispediaFrontend
-COPY --from=frontend-builder /frontend/extension.json /var/www/html/extensions/DavispediaFrontend/
-COPY --from=frontend-builder /frontend/dist /var/www/html/extensions/DavispediaFrontend/dist/
 
-RUN chown -R www-data:www-data /var/www/html/extensions/DavispediaFrontend
+COPY --from=frontend-builder \
+    /frontend/extension.json \
+    /var/www/html/extensions/DavispediaFrontend/
+
+COPY --from=frontend-builder \
+    /frontend/includes \
+    /var/www/html/extensions/DavispediaFrontend/includes/
+
+COPY --from=frontend-builder \
+    /frontend/dist \
+    /var/www/html/extensions/DavispediaFrontend/dist/
+
+RUN chown -R www-data:www-data \
+    /var/www/html/extensions/DavispediaFrontend
