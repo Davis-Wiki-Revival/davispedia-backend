@@ -66,5 +66,5 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
-            docker compose -f compose.prod.yaml pull mediawiki
-            docker compose -f compose.prod.yaml up -d mediawiki
+            docker compose -f compose.prod.yml pull mediawiki
+            docker compose -f compose.prod.yml up -d mediawiki
