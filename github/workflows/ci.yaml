@@ -1,0 +1,34 @@
+# # Event - Workflow
+# # Runner - Thing responsible for jobs
+
+# name: CI
+
+# on:
+#   push:
+#   pull_request:
+#     branches:
+#       - main
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # Step 1: Checkout
+#       - name: Checkout
+#         uses: actions/checkout@v4
+
+#       # Step 2: Setup PHP
+#       - name: Setup PHP
+#         uses: shivammathur/setup-php@v2
+#         with:
+#           # This is the minimum PHP version supported by your project
+#           php-version: '7.2'
+#           extensions: opcache
+#           coverage: none
+#           tools: none
+
+#       # Step 3: Check syntax
+#       - name: PHP Syntax Checker (Lint)
+#         uses: StephaneBour/actions-php-lint@8.3
+#         with:
+#           dir: .

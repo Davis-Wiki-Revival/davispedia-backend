@@ -1,0 +1,38 @@
+services:
+  mediawiki:
+    image: ghcr.io/davis-wiki-revival/davispedia-backend:latest
+    restart: always
+    volumes:
+      - ./images:/var/www/html/images
+      - ./LocalSettings.php:/var/www/html/LocalSettings.php:ro
+    networks:
+      - davispedia
+
+  db:
+    image: docker.io/library/mariadb:11
+    restart: unless-stopped
+    volumes:
+      - ./dbdata:/var/lib/mysql
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-davispedia}
+      MARIADB_USER: ${DB_USER:-davispedia}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    networks:
+      - davispedia
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare_tunnel_connector
+    restart: unless-stopped
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run
+    depends_on:
+      - mediawiki
+    networks:
+      - davispedia
+
+networks:
+  davispedia:
+    external: false

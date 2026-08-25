@@ -1,0 +1,13 @@
+# this is for local development
+services:
+  mediawiki:
+    image: mediawiki:1.46
+    ports:
+      - "8080:80"
+    volumes:
+      # Mount your local settings
+      - ./LocalSettings.php:/var/www/html/LocalSettings.php
+      # Create a persistent folder for the local SQLite database
+      - ./sqlite:/var/www/html/data
+      # Mount the frontend repo directly into the extensions folder
+      - ../davispedia-frontend:/var/www/html/extensions/DavispediaFrontend

@@ -1,0 +1,6 @@
+.env
+cache/
+images/
+dbdata/
+LocalSettings.php
+sqlite
