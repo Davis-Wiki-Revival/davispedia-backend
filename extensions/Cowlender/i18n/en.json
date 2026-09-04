@@ -1,0 +1,27 @@
+{
+  "@metadata": {
+    "authors": [
+      "Davis Wiki Revival"
+    ]
+  },
+  "cowlender": "The Cowlender",
+  "cowlender-desc": "A community calendar for events in Davis",
+  "cowlender-summary": "Community events in Davis",
+  "cowlender-loading": "Loading The Cowlender…",
+  "cowlender-noscript": "The Cowlender requires JavaScript.",
+  "right-cowlender-view": "View Cowlender events",
+  "right-cowlender-create": "Create Cowlender events",
+  "right-cowlender-edit-own": "Edit their own Cowlender events",
+  "right-cowlender-edit-all": "Edit all Cowlender events",
+  "right-cowlender-delete": "Delete Cowlender events",
+  "right-cowlender-admin": "Administer The Cowlender",
+  "action-cowlender-view": "view Cowlender events",
+  "action-cowlender-create": "create Cowlender events",
+  "action-cowlender-edit-own": "edit your own Cowlender events",
+  "action-cowlender-edit-all": "edit all Cowlender events",
+  "action-cowlender-delete": "delete Cowlender events",
+  "action-cowlender-admin": "administer The Cowlender",
+  "group-cowlender-moderator": "Cowlender moderators",
+  "group-cowlender-moderator-member": "Cowlender moderator",
+  "grouppage-cowlender-moderator": "{{ns:project}}:Cowlender moderators"
+}
