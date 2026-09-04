@@ -4,8 +4,8 @@ declare( strict_types=1 );
 
 namespace MediaWiki\Extension\Cowlender;
 
-use Html;
-use SpecialPage;
+use MediaWiki\Html\Html;
+use MediaWiki\SpecialPage\SpecialPage;
 
 /**
  * Hosts the React application at Special:Cowlender.
@@ -33,7 +33,7 @@ final class SpecialCowlender extends SpecialPage {
 			'wgCowlenderRestBaseUrl' => wfScript( 'rest' ) . '/cowlender/v1',
 			'wgCowlenderPageTitle' => $this->getPageTitle()->getPrefixedText(),
 		] );
-		$output->setPageTitle( $this->msg( 'cowlender' ) );
+		$output->setPageTitle( $this->msg( 'cowlender' )->text() );
 		$output->addWikiMsg( 'cowlender-summary' );
 		$output->addHTML(
 			Html::rawElement(
