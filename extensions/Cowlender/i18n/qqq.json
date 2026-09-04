@@ -1,0 +1,12 @@
+{
+  "@metadata": {
+    "authors": [
+      "Davis Wiki Revival"
+    ]
+  },
+  "cowlender": "Name of the Cowlender special page.",
+  "cowlender-desc": "Extension description shown on Special:Version.",
+  "cowlender-summary": "Short description shown above the calendar.",
+  "cowlender-loading": "Status shown while the React calendar is mounting.",
+  "cowlender-noscript": "Shown when JavaScript is disabled."
+}
