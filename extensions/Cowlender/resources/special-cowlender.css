@@ -1,0 +1,16 @@
+.mw-special-Cowlender .mw-body-content {
+  max-width: none;
+}
+
+#cowlender-root {
+  min-height: 28rem;
+}
+
+.cowlender-shell-status {
+  align-items: center;
+  color: var(--color-subtle, #54595d);
+  display: flex;
+  justify-content: center;
+  min-height: 18rem;
+  text-align: center;
+}
