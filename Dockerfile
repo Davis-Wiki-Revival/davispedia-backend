@@ -7,15 +7,20 @@ WORKDIR /frontend
 
 RUN git checkout "${FRONTEND_REF}"
 
-RUN npm install && npm run build
+RUN npm ci && npm run build
 
 
 FROM mediawiki:1.46
 
-RUN mkdir -p /var/www/html/extensions/DavispediaFrontend
+RUN mkdir -p \
+    /var/www/html/extensions/DavispediaFrontend \
+    /var/www/html/extensions/Cowlender
 
 COPY --from=frontend-builder /frontend/extension.json /var/www/html/extensions/DavispediaFrontend/
 COPY --from=frontend-builder /frontend/includes /var/www/html/extensions/DavispediaFrontend/includes/
 COPY --from=frontend-builder /frontend/dist /var/www/html/extensions/DavispediaFrontend/dist/
+COPY extensions/Cowlender /var/www/html/extensions/Cowlender/
 
-RUN chown -R www-data:www-data /var/www/html/extensions/DavispediaFrontend
+RUN chown -R www-data:www-data \
+    /var/www/html/extensions/DavispediaFrontend \
+    /var/www/html/extensions/Cowlender
