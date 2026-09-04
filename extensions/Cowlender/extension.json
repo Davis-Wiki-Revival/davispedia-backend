@@ -14,13 +14,9 @@
     "MediaWiki\\Extension\\Cowlender\\": "includes/"
   },
   "MessagesDirs": {
-    "Cowlender": [
-      "i18n"
-    ]
+    "Cowlender": ["i18n"]
   },
-  "ServiceWiringFiles": [
-    "includes/ServiceWiring.php"
-  ],
+  "ServiceWiringFiles": ["includes/ServiceWiring.php"],
   "SpecialPages": {
     "Cowlender": "MediaWiki\\Extension\\Cowlender\\SpecialCowlender"
   },
@@ -29,10 +25,12 @@
   },
   "ResourceModules": {
     "ext.cowlender.shell": {
-      "styles": [
-        "resources/special-cowlender.css"
-      ]
+      "styles": ["special-cowlender.css"]
     }
+  },
+  "ResourceFileModulePaths": {
+    "localBasePath": "resources",
+    "remoteExtPath": "Cowlender/resources"
   },
   "AvailableRights": [
     "cowlender-view",
