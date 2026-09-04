@@ -11,8 +11,13 @@ use SpecialPage;
  * Hosts the React application at Special:Cowlender.
  */
 final class SpecialCowlender extends SpecialPage {
+
 	public function __construct() {
-		parent::__construct( 'Cowlender', 'cowlender-view' );
+		parent::__construct( 'Cowlender' );
+	}
+
+	public function getRestriction(): string {
+		return 'cowlender-view';
 	}
 
 	/**
