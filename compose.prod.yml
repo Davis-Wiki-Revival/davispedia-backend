@@ -2,6 +2,9 @@ services:
   mediawiki:
     image: ghcr.io/davis-wiki-revival/davispedia-backend:latest
     restart: always
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
       - ./images:/var/www/html/images
       - ./LocalSettings.php:/var/www/html/LocalSettings.php:ro
@@ -18,6 +21,12 @@ services:
       MARIADB_USER: ${DB_USER:-davispedia}
       MARIADB_PASSWORD: ${DB_PASSWORD}
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
     networks:
       - davispedia
 

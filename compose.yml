@@ -11,3 +11,5 @@ services:
       - ./sqlite:/var/www/html/data
       # Mount the frontend repo directly into the extensions folder
       - ../davispedia-frontend:/var/www/html/extensions/DavispediaFrontend
+      # Mount the backend-owned Cowlender extension
+      - ./extensions/Cowlender:/var/www/html/extensions/Cowlender:ro

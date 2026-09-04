@@ -1,0 +1,161 @@
+{
+  "name": "Cowlender",
+  "version": "0.1.0",
+  "author": "Davis Wiki Revival",
+  "url": "https://github.com/Davis-Wiki-Revival/davispedia-backend",
+  "descriptionmsg": "cowlender-desc",
+  "license-name": "GPL-2.0-or-later",
+  "type": "other",
+  "manifest_version": 2,
+  "requires": {
+    "MediaWiki": ">= 1.46.0"
+  },
+  "AutoloadNamespaces": {
+    "MediaWiki\\Extension\\Cowlender\\": "includes/"
+  },
+  "MessagesDirs": {
+    "Cowlender": [
+      "i18n"
+    ]
+  },
+  "ServiceWiringFiles": [
+    "includes/ServiceWiring.php"
+  ],
+  "SpecialPages": {
+    "Cowlender": "MediaWiki\\Extension\\Cowlender\\SpecialCowlender"
+  },
+  "SpecialPageGroups": {
+    "Cowlender": "other"
+  },
+  "ResourceModules": {
+    "ext.cowlender.shell": {
+      "styles": [
+        "resources/special-cowlender.css"
+      ]
+    }
+  },
+  "AvailableRights": [
+    "cowlender-view",
+    "cowlender-create",
+    "cowlender-edit-own",
+    "cowlender-edit-all",
+    "cowlender-delete",
+    "cowlender-admin"
+  ],
+  "GroupPermissions": {
+    "*": {
+      "cowlender-view": true
+    },
+    "user": {
+      "cowlender-create": true,
+      "cowlender-edit-own": true
+    },
+    "cowlender-moderator": {
+      "cowlender-edit-all": true,
+      "cowlender-delete": true
+    },
+    "sysop": {
+      "cowlender-edit-all": true,
+      "cowlender-delete": true,
+      "cowlender-admin": true
+    }
+  },
+  "Hooks": {
+    "LoadExtensionSchemaUpdates": "MediaWiki\\Extension\\Cowlender\\Hooks::onLoadExtensionSchemaUpdates"
+  },
+  "RestRoutes": [
+    {
+      "path": "/cowlender/v1/meta",
+      "method": "GET",
+      "class": "MediaWiki\\Extension\\Cowlender\\Rest\\MetaHandler"
+    },
+    {
+      "path": "/cowlender/v1/events",
+      "method": "GET",
+      "class": "MediaWiki\\Extension\\Cowlender\\Rest\\ListEventsHandler"
+    },
+    {
+      "path": "/cowlender/v1/events",
+      "method": "POST",
+      "class": "MediaWiki\\Extension\\Cowlender\\Rest\\CreateEventHandler"
+    },
+    {
+      "path": "/cowlender/v1/events/{id}",
+      "method": "GET",
+      "class": "MediaWiki\\Extension\\Cowlender\\Rest\\GetEventHandler"
+    },
+    {
+      "path": "/cowlender/v1/events/{id}",
+      "method": "PATCH",
+      "class": "MediaWiki\\Extension\\Cowlender\\Rest\\UpdateEventHandler"
+    },
+    {
+      "path": "/cowlender/v1/events/{id}",
+      "method": "DELETE",
+      "class": "MediaWiki\\Extension\\Cowlender\\Rest\\DeleteEventHandler"
+    },
+    {
+      "path": "/cowlender/v1/events/{id}/revisions",
+      "method": "GET",
+      "class": "MediaWiki\\Extension\\Cowlender\\Rest\\ListRevisionsHandler"
+    }
+  ],
+  "config": {
+    "CowlenderDefaultTimezone": {
+      "value": "America/Los_Angeles",
+      "description": "IANA timezone used by default for Cowlender events."
+    },
+    "CowlenderMaxRangeDays": {
+      "value": 370,
+      "description": "Largest date range accepted by the event-list endpoint."
+    },
+    "CowlenderMaxEventsPerRequest": {
+      "value": 2000,
+      "description": "Maximum number of events returned by one list request."
+    },
+    "CowlenderMaxEventDurationDays": {
+      "value": 3660,
+      "description": "Maximum duration of an individual event."
+    },
+    "CowlenderCategories": {
+      "value": [
+        {
+          "slug": "community",
+          "label": "Community",
+          "color": "#2f6f4e"
+        },
+        {
+          "slug": "arts-culture",
+          "label": "Arts & Culture",
+          "color": "#8b4a78"
+        },
+        {
+          "slug": "civic",
+          "label": "Civic",
+          "color": "#3f5f8f"
+        },
+        {
+          "slug": "education",
+          "label": "Education",
+          "color": "#8a642c"
+        },
+        {
+          "slug": "food-drink",
+          "label": "Food & Drink",
+          "color": "#a54d35"
+        },
+        {
+          "slug": "sports-recreation",
+          "label": "Sports & Recreation",
+          "color": "#397886"
+        },
+        {
+          "slug": "other",
+          "label": "Other",
+          "color": "#6b7280"
+        }
+      ],
+      "description": "Ordered category definitions exposed by the Cowlender API."
+    }
+  }
+}
