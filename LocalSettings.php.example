@@ -1,0 +1,34 @@
+<?php
+# davispedia-backend/LocalSettings.php
+
+# Protect against web entry
+if ( !defined( 'MEDIAWIKI' ) ) {
+    exit;
+}
+
+$wgSitename = "Davispedia Local Dev";
+$wgScriptPath = "";
+$wgServer = "http://localhost:8080";
+
+# Database settings (SQLite)
+$wgDBtype = "sqlite";
+$wgDBserver = "";
+$wgDBname = "my_wiki";
+$wgDBuser = "";
+$wgDBpassword = "";
+$wgSQLiteDataDir = "/var/www/html/data";
+
+# Load the default Vector skin
+wfLoadSkin( 'Vector' );
+$wgDefaultSkin = 'vector-2022';
+
+# Load custom extensions
+wfLoadExtension( 'DavispediaFrontend', "$IP/extensions/DavispediaFrontend/extension.json" );
+if ( is_dir( "$IP/extensions/Cowlender" ) ) {
+    wfLoadExtension( 'Cowlender' );
+}
+
+# Tell MediaWiki to inject your React bundle onto every page
+$wgHooks['BeforePageDisplay'][] = function( OutputPage $out, Skin $skin ) {
+    $out->addModules( 'ext.davispedia.frontend' );
+};
