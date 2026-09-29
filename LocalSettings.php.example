@@ -28,6 +28,8 @@ if ( is_dir( "$IP/extensions/Cowlender" ) ) {
     wfLoadExtension( 'Cowlender' );
 }
 
+wfLoadExtension( 'PictureOfTheDay' );
+
 # Tell MediaWiki to inject your React bundle onto every page
 $wgHooks['BeforePageDisplay'][] = function( OutputPage $out, Skin $skin ) {
     $out->addModules( 'ext.davispedia.frontend' );
