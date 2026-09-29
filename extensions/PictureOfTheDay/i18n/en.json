@@ -1,0 +1,13 @@
+{
+  "@metadata": {
+    "authors": [
+      "Joshua Lawson"
+    ]
+  },
+  "pictureoftheday-desc": "Adds a rotating, locally scheduled picture-of-the-day component for Davispedia.",
+  "pictureoftheday-not-scheduled": "No picture of the day has been scheduled.",
+  "pictureoftheday-invalid-file": "The picture-of-the-day entry does not specify a valid file.",
+  "pictureoftheday-invalid-start-date": "The picture-of-the-day queue start date “$1” is invalid. Use YYYY-MM-DD.",
+  "pictureoftheday-default-alt": "Picture of the day",
+  "pictureoftheday-file-details": "Image details and license"
+}
