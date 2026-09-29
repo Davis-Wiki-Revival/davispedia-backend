@@ -4,9 +4,10 @@
       "Joshua Lawson"
     ]
   },
-  "davispediapotd-desc": "{{desc|name=DavispediaPictureOfTheDay|url=https://davispedia.org/}}",
-  "davispediapotd-not-scheduled": "Shown when neither today's scheduled page nor the fallback page exists.",
-  "davispediapotd-invalid-file": "Shown when an entry has no valid file attribute.",
-  "davispediapotd-default-alt": "Default alternative text for a picture when no alt attribute is supplied.",
-  "davispediapotd-file-details": "Label for a link to the file description and licensing page."
+  "pictureoftheday-desc": "{{desc|name=PictureOfTheDay|url=https://davispedia.org/}}",
+  "pictureoftheday-not-scheduled": "Shown when no dated entry, usable queue, or fallback page is available.",
+  "pictureoftheday-invalid-file": "Shown when an entry has no valid file attribute.",
+  "pictureoftheday-invalid-start-date": "Shown when the queue start attribute is not a valid YYYY-MM-DD date. $1 is the supplied value.",
+  "pictureoftheday-default-alt": "Default alternative text for a picture when no alt attribute is supplied.",
+  "pictureoftheday-file-details": "Label for a link to the file description and licensing page."
 }

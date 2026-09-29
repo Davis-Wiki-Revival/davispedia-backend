@@ -14,6 +14,11 @@ final class Hooks {
         );
 
         $parser->setHook(
+            'davispedia-picture-of-the-day-queue',
+            [ Renderer::class, 'renderQueue' ]
+        );
+
+        $parser->setHook(
             'davispedia-picture-of-the-day-entry',
             [ Renderer::class, 'renderEntry' ]
         );

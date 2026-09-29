@@ -1,11 +1,11 @@
 {
   "name": "PictureOfTheDay",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": [
     "Joshua Lawson"
   ],
   "url": "https://davispedia.org/",
-  "descriptionmsg": "potd-desc",
+  "descriptionmsg": "pictureoftheday-desc",
   "license-name": "MIT",
   "type": "parserhook",
   "requires": {
@@ -24,9 +24,9 @@
     ]
   },
   "ResourceModules": {
-    "ext.PictureOfTheDay.styles": {
+    "ext.pictureOfTheDay.styles": {
       "styles": [
-        "resources/ext.PictureOfTheDay.css"
+        "resources/ext.pictureOfTheDay.css"
       ]
     }
   },
@@ -37,11 +37,19 @@
     },
     "PictureOfTheDayPagePrefix": {
       "value": "MediaWiki:PictureOfTheDay",
-      "description": "Prefix for date pages, without the trailing slash or date."
+      "description": "Prefix for dated override pages, without the trailing slash or date."
+    },
+    "PictureOfTheDayQueuePage": {
+      "value": "MediaWiki:PictureOfTheDay/Queue",
+      "description": "Page containing the rotating picture queue."
+    },
+    "PictureOfTheDayQueueStartDate": {
+      "value": "2026-09-28",
+      "description": "Local date on which the first queue entry is selected."
     },
     "PictureOfTheDayFallbackPage": {
       "value": "MediaWiki:PictureOfTheDay/default",
-      "description": "Page transcluded when no entry exists for the current date."
+      "description": "Page transcluded when neither a dated override nor a usable queue is available."
     },
     "PictureOfTheDayImageWidth": {
       "value": 600,

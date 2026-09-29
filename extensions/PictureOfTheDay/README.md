@@ -1,58 +1,70 @@
-# DavispediaPictureOfTheDay
+# PictureOfTheDay
 
-A small MediaWiki extension that selects and renders a protected, date-named
-Picture of the Day page using the Davis local date.
+A MediaWiki extension for Davispedia that rotates through a queue of pictures,
+with optional date-specific overrides and a final fallback page.
 
 ## Install
 
-1. Copy this directory to `extensions/DavispediaPictureOfTheDay`.
-2. Add to `LocalSettings.php`:
+Place the directory at `extensions/PictureOfTheDay` and add:
 
-   ```php
-   wfLoadExtension( 'DavispediaPictureOfTheDay' );
-   ```
+```php
+wfLoadExtension( 'PictureOfTheDay' );
+```
 
-3. Create the fallback page `MediaWiki:PictureOfTheDay/default`.
-4. Create scheduled pages using the name
-   `MediaWiki:PictureOfTheDay/YYYY-MM-DD`.
-5. Put `<davispedia-picture-of-the-day />` on the Main Page.
-
-## Scheduled page example
-
-Create `MediaWiki:PictureOfTheDay/2026-09-28` with:
+Put this on the Main Page:
 
 ```wiki
+<davispedia-picture-of-the-day />
+```
+
+## Queue
+
+Create `MediaWiki:PictureOfTheDay/Queue`:
+
+```wiki
+<davispedia-picture-of-the-day-queue start="2026-09-28">
+
 <davispedia-picture-of-the-day-entry
- file="2026-09-14-davis-arboretum.jpg"
+ file="2023-03-09751.png"
  alt="A view of the Davis Arboretum"
  link="Davis Arboretum">
 A view of the [[Davis Arboretum]].
 </davispedia-picture-of-the-day-entry>
+
+<davispedia-picture-of-the-day-entry
+ file="Mycowpicstercero.jpg"
+ alt="Cows near the Animal Sciences Teaching Facility"
+ link="Animal Sciences Teaching Facility">
+Cows near the [[Animal Sciences Teaching Facility]].
+</davispedia-picture-of-the-day-entry>
+
+</davispedia-picture-of-the-day-queue>
 ```
 
-The optional `credit` attribute accepts wikitext. If omitted, the extension
-adds a link to the file-description page.
+The first item appears on the `start` date, the second item the next day, and
+so on. After the final item, the queue wraps back to the first. Reordering or
+adding items changes the future rotation.
 
-## Main Page
+## Dated override
 
-```wiki
-<div class="davispedia-feature-card davispedia-feature-red">
-    <h2>[[Picture of the day]]</h2>
-    <davispedia-picture-of-the-day />
-</div>
-```
+A page such as `MediaWiki:PictureOfTheDay/2026-10-31` takes precedence over the
+queue on that date. Its content is one normal entry tag.
+
+## Fallback
+
+`MediaWiki:PictureOfTheDay/default` is used only when the queue page is missing
+or contains no entry tags.
 
 ## Configuration
 
 ```php
-$wgDavispediaPictureOfTheDayTimeZone = 'America/Los_Angeles';
-$wgDavispediaPictureOfTheDayPagePrefix = 'MediaWiki:PictureOfTheDay';
-$wgDavispediaPictureOfTheDayFallbackPage = 'MediaWiki:PictureOfTheDay/default';
-$wgDavispediaPictureOfTheDayImageWidth = 600;
+$wgPictureOfTheDayTimeZone = 'America/Los_Angeles';
+$wgPictureOfTheDayPagePrefix = 'MediaWiki:PictureOfTheDay';
+$wgPictureOfTheDayQueuePage = 'MediaWiki:PictureOfTheDay/Queue';
+$wgPictureOfTheDayQueueStartDate = '2026-09-28';
+$wgPictureOfTheDayFallbackPage = 'MediaWiki:PictureOfTheDay/default';
+$wgPictureOfTheDayImageWidth = 600;
 ```
 
-The parser cache is set to expire at the next local midnight. When today's
-page is missing, the fallback is cached for no more than five minutes, so a
-newly created entry appears without waiting until tomorrow. Because the chosen
-page is transcluded normally, editing it participates in MediaWiki's standard
-dependency invalidation.
+The `start` attribute on the queue page overrides
+`$wgPictureOfTheDayQueueStartDate`.
