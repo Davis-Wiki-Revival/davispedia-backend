@@ -1,7 +1,8 @@
 # PictureOfTheDay
 
 A MediaWiki extension for Davispedia that rotates through a queue of pictures,
-with optional date-specific overrides and a final fallback page.
+with optional date-specific overrides, a two-week queue preview, a date lookup,
+and a final fallback page.
 
 ## Install
 
@@ -44,6 +45,22 @@ Cows near the [[Animal Sciences Teaching Facility]].
 The first item appears on the `start` date, the second item the next day, and
 so on. After the final item, the queue wraps back to the first. Reordering or
 adding items changes the future rotation.
+
+## Queue dashboard
+
+Opening `MediaWiki:PictureOfTheDay/Queue` directly shows the next 14 days and a
+form for checking any specific date. The lookup accounts for the current queue
+order, queue start date, and any dated override that already exists. Its answer
+is a prediction and can change after later edits.
+
+The default preview length is 14 days. It can be changed on the queue wrapper:
+
+```wiki
+<davispedia-picture-of-the-day-queue start="2026-09-28" preview-days="30">
+```
+
+When the queue page is transcluded through `<davispedia-picture-of-the-day />`,
+it renders only the entry selected for the current date.
 
 ## Dated override
 

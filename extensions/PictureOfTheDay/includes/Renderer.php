@@ -6,6 +6,7 @@ namespace MediaWiki\Extension\PictureOfTheDay;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\Html\Html;
 use MediaWiki\Title\Title;
 use Parser;
@@ -15,20 +16,11 @@ use Throwable;
 final class Renderer {
 
     private const STYLE_MODULE = 'ext.pictureOfTheDay.styles';
+    private const DEFAULT_PREVIEW_DAYS = 14;
+    private const MAX_PREVIEW_DAYS = 90;
+    private const PREVIEW_IMAGE_WIDTH = 360;
+    private const LOOKUP_PARAMETER = 'potd-date';
 
-    /**
-     * Render the entry for the current local date.
-     *
-     * Selection order:
-     * 1. MediaWiki:PictureOfTheDay/YYYY-MM-DD
-     * 2. MediaWiki:PictureOfTheDay/Queue
-     * 3. MediaWiki:PictureOfTheDay/default
-     *
-     * Usage: <davispedia-picture-of-the-day />
-     *
-     * @param string|null $input Unused tag body
-     * @param array<string,string> $args Unused tag attributes
-     */
     public static function renderCurrent(
         ?string $input,
         array $args,
@@ -36,8 +28,6 @@ final class Renderer {
         PPFrame $frame
     ): string {
         global $wgPictureOfTheDayPagePrefix;
-        global $wgPictureOfTheDayQueuePage;
-        global $wgPictureOfTheDayFallbackPage;
 
         $parserOutput = $parser->getOutput();
         $parserOutput->addModuleStyles( [ self::STYLE_MODULE ] );
@@ -52,22 +42,14 @@ final class Renderer {
         $scheduledTitle = Title::newFromText(
             $prefix . '/' . $now->format( 'Y-m-d' )
         );
-        $scheduledExists = $scheduledTitle && $scheduledTitle->exists();
 
-        if ( $scheduledExists ) {
+        if ( $scheduledTitle && $scheduledTitle->exists() ) {
             return self::transclude( $scheduledTitle, $parser, $frame );
         }
 
-        // A newly created dated override should appear promptly even though the
-        // Main Page currently depends on the queue rather than that missing page.
         $parserOutput->updateCacheExpiry( 300 );
 
-        $queueTitle = Title::newFromText(
-            is_string( $wgPictureOfTheDayQueuePage )
-                ? $wgPictureOfTheDayQueuePage
-                : 'MediaWiki:PictureOfTheDay/Queue'
-        );
-
+        $queueTitle = self::getQueueTitle();
         if ( $queueTitle && $queueTitle->exists() ) {
             return self::transclude( $queueTitle, $parser, $frame );
         }
@@ -75,22 +57,6 @@ final class Renderer {
         return self::renderFallback( $parser, $frame );
     }
 
-    /**
-     * Select and render one child entry from a rotating queue.
-     *
-     * The first entry is selected on the configured start date. The next entry
-     * is selected on the following local calendar day. The queue wraps when it
-     * reaches the end.
-     *
-     * Usage:
-     * <davispedia-picture-of-the-day-queue start="2026-09-28">
-     *   <davispedia-picture-of-the-day-entry ...>Caption</...>
-     *   <davispedia-picture-of-the-day-entry ...>Caption</...>
-     * </davispedia-picture-of-the-day-queue>
-     *
-     * @param string|null $input Raw queue body
-     * @param array<string,string> $args Queue attributes
-     */
     public static function renderQueue(
         ?string $input,
         array $args,
@@ -123,26 +89,30 @@ final class Renderer {
             );
         }
 
-        $today = $now->setTime( 0, 0, 0 );
-        $dayOffset = (int)$startDate->diff( $today )->format( '%r%a' );
-        $entryCount = count( $entries );
-        $index = ( ( $dayOffset % $entryCount ) + $entryCount ) % $entryCount;
-        $selected = $entries[$index];
+        if ( self::isDirectQueuePageView( $parser ) ) {
+            return self::renderSchedule(
+                $entries,
+                $startDate,
+                $args,
+                $parser,
+                $frame,
+                $now
+            );
+        }
 
-        return self::renderEntry(
-            $selected['body'],
-            $selected['args'],
+        $today = $now->setTime( 0, 0, 0 );
+        $selection = self::resolveSelectionForDate(
+            $today,
+            $entries,
+            $startDate,
             $parser,
-            $frame
+            $frame,
+            false
         );
+
+        return $selection['html'];
     }
 
-    /**
-     * Render a single picture entry.
-     *
-     * @param string|null $input Caption wikitext
-     * @param array<string,string> $args Tag attributes
-     */
     public static function renderEntry(
         ?string $input,
         array $args,
@@ -151,6 +121,301 @@ final class Renderer {
     ): string {
         global $wgPictureOfTheDayImageWidth;
 
+        $width = is_int( $wgPictureOfTheDayImageWidth )
+            ? $wgPictureOfTheDayImageWidth
+            : (int)$wgPictureOfTheDayImageWidth;
+
+        return self::renderEntryAtWidth(
+            $input,
+            $args,
+            $parser,
+            $frame,
+            $width
+        );
+    }
+
+    private static function renderSchedule(
+        array $entries,
+        DateTimeImmutable $startDate,
+        array $args,
+        Parser $parser,
+        PPFrame $frame,
+        DateTimeImmutable $now
+    ): string {
+        $previewDays = self::parsePreviewDays(
+            (string)( $args['preview-days'] ?? self::DEFAULT_PREVIEW_DAYS )
+        );
+        $today = $now->setTime( 0, 0, 0 );
+
+        $parser->getOutput()->updateCacheExpiry( 0 );
+
+        $items = '';
+        for ( $day = 0; $day < $previewDays; $day++ ) {
+            $date = $today->modify( '+' . $day . ' days' );
+            $selection = self::resolveSelectionForDate(
+                $date,
+                $entries,
+                $startDate,
+                $parser,
+                $frame,
+                true
+            );
+
+            if ( $day === 0 ) {
+                $relativeText = wfMessage( 'pictureoftheday-schedule-today' )->text();
+            } elseif ( $day === 1 ) {
+                $relativeText = wfMessage( 'pictureoftheday-schedule-tomorrow' )->text();
+            } else {
+                $relativeText = $date->format( 'l' );
+            }
+
+            $heading = Html::element(
+                'h3',
+                [ 'class' => 'davispedia-potd-schedule-day' ],
+                $relativeText
+            );
+            $dateHtml = Html::element(
+                'time',
+                [
+                    'class' => 'davispedia-potd-schedule-date',
+                    'datetime' => $date->format( 'Y-m-d' ),
+                ],
+                $date->format( 'F j, Y' )
+            );
+            $sourceHtml = Html::element(
+                'div',
+                [ 'class' => 'davispedia-potd-schedule-source' ],
+                $selection['source']
+            );
+
+            $items .= Html::rawElement(
+                'section',
+                [ 'class' => 'davispedia-potd-schedule-item' ],
+                Html::rawElement(
+                    'header',
+                    [ 'class' => 'davispedia-potd-schedule-header' ],
+                    $heading . $dateHtml . $sourceHtml
+                ) . $selection['html']
+            );
+        }
+
+        $timeZoneText = $now->getTimezone()->getName();
+        $intro = Html::element(
+            'p',
+            [ 'class' => 'davispedia-potd-schedule-intro' ],
+            wfMessage(
+                'pictureoftheday-schedule-intro',
+                $previewDays,
+                $timeZoneText
+            )->text()
+        );
+
+        $lookup = self::renderDateLookup(
+            $entries,
+            $startDate,
+            $parser,
+            $frame,
+            $now
+        );
+
+        return Html::rawElement(
+            'div',
+            [ 'class' => 'davispedia-potd-schedule' ],
+            $intro
+            . $lookup
+            . Html::rawElement(
+                'div',
+                [ 'class' => 'davispedia-potd-schedule-grid' ],
+                $items
+            )
+        );
+    }
+
+    private static function renderDateLookup(
+        array $entries,
+        DateTimeImmutable $startDate,
+        Parser $parser,
+        PPFrame $frame,
+        DateTimeImmutable $now
+    ): string {
+        $request = RequestContext::getMain()->getRequest();
+        $requestedDateText = trim( $request->getText( self::LOOKUP_PARAMETER ) );
+        $inputValue = $requestedDateText !== ''
+            ? $requestedDateText
+            : $now->format( 'Y-m-d' );
+
+        $queueTitle = self::getQueueTitle();
+        $action = $queueTitle ? $queueTitle->getLocalURL() : '';
+        $inputId = 'davispedia-potd-date-lookup-input';
+
+        $form = Html::rawElement(
+            'form',
+            [
+                'class' => 'davispedia-potd-date-lookup-form',
+                'method' => 'get',
+                'action' => $action,
+            ],
+            Html::rawElement(
+                'div',
+                [ 'class' => 'davispedia-potd-date-lookup-field' ],
+                Html::element(
+                    'label',
+                    [ 'for' => $inputId ],
+                    wfMessage( 'pictureoftheday-lookup-label' )->text()
+                )
+                . Html::element(
+                    'input',
+                    [
+                        'id' => $inputId,
+                        'name' => self::LOOKUP_PARAMETER,
+                        'type' => 'date',
+                        'value' => $inputValue,
+                        'required' => true,
+                    ]
+                )
+            )
+            . Html::element(
+                'button',
+                [
+                    'class' => 'davispedia-potd-date-lookup-submit',
+                    'type' => 'submit',
+                ],
+                wfMessage( 'pictureoftheday-lookup-submit' )->text()
+            )
+        );
+
+        $result = '';
+        if ( $requestedDateText !== '' ) {
+            $requestedDate = self::parseLocalDate(
+                $requestedDateText,
+                $now->getTimezone()
+            );
+
+            if ( !$requestedDate ) {
+                $result = Html::element(
+                    'div',
+                    [
+                        'class' => 'davispedia-potd-error davispedia-potd-date-lookup-error',
+                        'role' => 'alert',
+                    ],
+                    wfMessage(
+                        'pictureoftheday-lookup-invalid-date',
+                        $requestedDateText
+                    )->text()
+                );
+            } else {
+                $selection = self::resolveSelectionForDate(
+                    $requestedDate,
+                    $entries,
+                    $startDate,
+                    $parser,
+                    $frame,
+                    true
+                );
+                $dateLabel = $requestedDate->format( 'F j, Y' );
+
+                $result = Html::rawElement(
+                    'section',
+                    [ 'class' => 'davispedia-potd-date-lookup-result' ],
+                    Html::element(
+                        'h3',
+                        [ 'class' => 'davispedia-potd-date-lookup-result-heading' ],
+                        wfMessage(
+                            'pictureoftheday-lookup-result-heading',
+                            $dateLabel
+                        )->text()
+                    )
+                    . Html::element(
+                        'div',
+                        [ 'class' => 'davispedia-potd-schedule-source' ],
+                        $selection['source']
+                    )
+                    . $selection['html']
+                    . Html::element(
+                        'p',
+                        [ 'class' => 'davispedia-potd-date-lookup-assumption' ],
+                        wfMessage( 'pictureoftheday-lookup-assumption' )->text()
+                    )
+                );
+            }
+        }
+
+        return Html::rawElement(
+            'section',
+            [
+                'class' => 'davispedia-potd-date-lookup',
+                'aria-labelledby' => 'davispedia-potd-date-lookup-heading',
+            ],
+            Html::element(
+                'h2',
+                [
+                    'id' => 'davispedia-potd-date-lookup-heading',
+                    'class' => 'davispedia-potd-date-lookup-heading',
+                ],
+                wfMessage( 'pictureoftheday-lookup-heading' )->text()
+            )
+            . Html::element(
+                'p',
+                [ 'class' => 'davispedia-potd-date-lookup-description' ],
+                wfMessage( 'pictureoftheday-lookup-description' )->text()
+            )
+            . $form
+            . $result
+        );
+    }
+
+    private static function resolveSelectionForDate(
+        DateTimeImmutable $date,
+        array $entries,
+        DateTimeImmutable $startDate,
+        Parser $parser,
+        PPFrame $frame,
+        bool $preview
+    ): array {
+        global $wgPictureOfTheDayPagePrefix;
+
+        $prefix = is_string( $wgPictureOfTheDayPagePrefix )
+            ? rtrim( $wgPictureOfTheDayPagePrefix, '/' )
+            : 'MediaWiki:PictureOfTheDay';
+        $overrideTitle = Title::newFromText(
+            $prefix . '/' . $date->format( 'Y-m-d' )
+        );
+
+        if ( $overrideTitle && $overrideTitle->exists() ) {
+            return [
+                'html' => self::transclude( $overrideTitle, $parser, $frame ),
+                'source' => wfMessage( 'pictureoftheday-schedule-override' )->text(),
+            ];
+        }
+
+        $dayOffset = (int)$startDate->diff( $date )->format( '%r%a' );
+        $index = self::positiveModulo( $dayOffset, count( $entries ) );
+        $selected = $entries[$index];
+        $width = $preview ? self::PREVIEW_IMAGE_WIDTH : self::getConfiguredImageWidth();
+
+        return [
+            'html' => self::renderEntryAtWidth(
+                $selected['body'],
+                $selected['args'],
+                $parser,
+                $frame,
+                $width
+            ),
+            'source' => wfMessage(
+                'pictureoftheday-schedule-queue-position',
+                $index + 1,
+                count( $entries )
+            )->text(),
+        ];
+    }
+
+    private static function renderEntryAtWidth(
+        ?string $input,
+        array $args,
+        Parser $parser,
+        PPFrame $frame,
+        int $requestedWidth
+    ): string {
         $parser->getOutput()->addModuleStyles( [ self::STYLE_MODULE ] );
 
         $fileName = trim( (string)( $args['file'] ?? '' ) );
@@ -164,11 +429,7 @@ final class Renderer {
             );
         }
 
-        $width = is_int( $wgPictureOfTheDayImageWidth )
-            ? $wgPictureOfTheDayImageWidth
-            : (int)$wgPictureOfTheDayImageWidth;
-        $width = max( 100, min( 1600, $width ) );
-
+        $width = max( 100, min( 1600, $requestedWidth ) );
         $alt = self::sanitizeFileOption(
             trim( (string)(
                 $args['alt'] ?? wfMessage( 'pictureoftheday-default-alt' )->text()
@@ -232,11 +493,6 @@ final class Renderer {
         );
     }
 
-    /**
-     * Extract child entry tags from the unparsed queue body.
-     *
-     * @return array<int,array{args:array<string,string>,body:string}>
-     */
     private static function extractQueueEntries( string $input ): array {
         $pattern = '~
             <davispedia-picture-of-the-day-entry\b
@@ -262,11 +518,6 @@ final class Renderer {
         return $entries;
     }
 
-    /**
-     * Parse quoted attributes from one queue entry tag.
-     *
-     * @return array<string,string>
-     */
     private static function parseTagAttributes( string $attributeText ): array {
         $pattern = '~
             ([A-Za-z_:][A-Za-z0-9_.:-]*)
@@ -334,6 +585,46 @@ final class Renderer {
         return $parsed;
     }
 
+    private static function parsePreviewDays( string $value ): int {
+        $days = filter_var( trim( $value ), FILTER_VALIDATE_INT );
+        if ( $days === false ) {
+            return self::DEFAULT_PREVIEW_DAYS;
+        }
+
+        return max( 1, min( self::MAX_PREVIEW_DAYS, $days ) );
+    }
+
+    private static function positiveModulo( int $value, int $divisor ): int {
+        return ( ( $value % $divisor ) + $divisor ) % $divisor;
+    }
+
+    private static function getConfiguredImageWidth(): int {
+        global $wgPictureOfTheDayImageWidth;
+
+        return is_int( $wgPictureOfTheDayImageWidth )
+            ? $wgPictureOfTheDayImageWidth
+            : (int)$wgPictureOfTheDayImageWidth;
+    }
+
+    private static function isDirectQueuePageView( Parser $parser ): bool {
+        $queueTitle = self::getQueueTitle();
+        $parserTitle = $parser->getTitle();
+
+        return $queueTitle !== null
+            && $parserTitle !== null
+            && $queueTitle->getPrefixedDBkey() === $parserTitle->getPrefixedDBkey();
+    }
+
+    private static function getQueueTitle(): ?Title {
+        global $wgPictureOfTheDayQueuePage;
+
+        return Title::newFromText(
+            is_string( $wgPictureOfTheDayQueuePage )
+                ? $wgPictureOfTheDayQueuePage
+                : 'MediaWiki:PictureOfTheDay/Queue'
+        );
+    }
+
     private static function expireAtNextLocalMidnight(
         Parser $parser,
         DateTimeImmutable $now
@@ -380,9 +671,6 @@ final class Renderer {
         );
     }
 
-    /**
-     * Prevent parser-option delimiters from being injected through attributes.
-     */
     private static function sanitizeFileOption( string $value ): string {
         return trim( str_replace(
             [ '|', ']]', "\r", "\n" ],

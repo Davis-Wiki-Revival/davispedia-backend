@@ -7,6 +7,10 @@ namespace MediaWiki\Extension\PictureOfTheDay;
 use Parser;
 
 final class Hooks {
+
+    /**
+     * Register the parser tags used by the extension.
+     */
     public static function onParserFirstCallInit( Parser $parser ): void {
         $parser->setHook(
             'davispedia-picture-of-the-day',

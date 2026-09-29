@@ -9,5 +9,17 @@
   "pictureoftheday-invalid-file": "The picture-of-the-day entry does not specify a valid file.",
   "pictureoftheday-invalid-start-date": "The picture-of-the-day queue start date “$1” is invalid. Use YYYY-MM-DD.",
   "pictureoftheday-default-alt": "Picture of the day",
-  "pictureoftheday-file-details": "Image details and license"
+  "pictureoftheday-file-details": "Image details and license",
+  "pictureoftheday-schedule-intro": "Showing the next $1 days in $2 time. Edit this page to change the queue.",
+  "pictureoftheday-schedule-today": "Today",
+  "pictureoftheday-schedule-tomorrow": "Tomorrow",
+  "pictureoftheday-schedule-queue-position": "Queue item $1 of $2",
+  "pictureoftheday-schedule-override": "Dated override",
+  "pictureoftheday-lookup-heading": "Check a specific date",
+  "pictureoftheday-lookup-description": "See which picture would appear on a date if the current queue and dated overrides do not change.",
+  "pictureoftheday-lookup-label": "Date",
+  "pictureoftheday-lookup-submit": "Show picture",
+  "pictureoftheday-lookup-invalid-date": "The date “$1” is invalid. Use YYYY-MM-DD.",
+  "pictureoftheday-lookup-result-heading": "Picture scheduled for $1",
+  "pictureoftheday-lookup-assumption": "This prediction uses the current queue and existing dated overrides. Future edits can change it."
 }

@@ -62,6 +62,34 @@ validation, event storage, and revision history. Its React interface lives in
 See [extensions/Cowlender/README.md](extensions/Cowlender/README.md) for the
 API and configuration contract.
 
+## Picture of the day
+
+Uses a Mediawiki queue file to work, at http://localhost:8080/index.php/MediaWiki:PictureOfTheDay/Queue. 
+
+This has the rough format:
+
+```
+<davispedia-picture-of-the-day-queue start="2026-09-29">
+
+<davispedia-picture-of-the-day-entry
+	file="2023-03-09751.png"
+	alt="cat 1"
+	link="Davis Arboretum">
+A view of the [[Davis Arboretum]].
+</davispedia-picture-of-the-day-entry>
+
+<davispedia-picture-of-the-day-entry
+	file="2023-03-09721.png"
+	alt="cat 2"
+	link="Animal Sciences Teaching Facility">
+Cows near the [[Animal Sciences Teaching Facility]].
+</davispedia-picture-of-the-day-entry>
+
+</davispedia-picture-of-the-day-queue>
+```
+
+
+
 ## Production build help
 
 The frontend revision is an explicit build argument:

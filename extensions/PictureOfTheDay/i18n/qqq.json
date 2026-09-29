@@ -4,10 +4,22 @@
       "Joshua Lawson"
     ]
   },
-  "pictureoftheday-desc": "{{desc|name=PictureOfTheDay|url=https://davispedia.org/}}",
-  "pictureoftheday-not-scheduled": "Shown when no dated entry, usable queue, or fallback page is available.",
-  "pictureoftheday-invalid-file": "Shown when an entry has no valid file attribute.",
-  "pictureoftheday-invalid-start-date": "Shown when the queue start attribute is not a valid YYYY-MM-DD date. $1 is the supplied value.",
-  "pictureoftheday-default-alt": "Default alternative text for a picture when no alt attribute is supplied.",
-  "pictureoftheday-file-details": "Label for a link to the file description and licensing page."
+  "pictureoftheday-desc": "Description of the PictureOfTheDay extension.",
+  "pictureoftheday-not-scheduled": "Shown when no dated entry, queue entry, or fallback entry is available.",
+  "pictureoftheday-invalid-file": "Shown when an entry does not contain a valid file attribute.",
+  "pictureoftheday-invalid-start-date": "Shown when the queue start date is invalid. $1 is the supplied date.",
+  "pictureoftheday-default-alt": "Default alternative text for a picture.",
+  "pictureoftheday-file-details": "Default link text leading to the file description and license page.",
+  "pictureoftheday-schedule-intro": "Introduction above the queue preview. $1 is the number of days and $2 is the IANA time zone.",
+  "pictureoftheday-schedule-today": "Label for the current day in the queue preview.",
+  "pictureoftheday-schedule-tomorrow": "Label for the next day in the queue preview.",
+  "pictureoftheday-schedule-queue-position": "Queue position label. $1 is the selected one-based item number and $2 is the number of queue entries.",
+  "pictureoftheday-schedule-override": "Label indicating that a date-specific page overrides the rotating queue.",
+  "pictureoftheday-lookup-heading": "Heading above the date lookup form.",
+  "pictureoftheday-lookup-description": "Description explaining that the date lookup predicts the result under the current queue and overrides.",
+  "pictureoftheday-lookup-label": "Label for the date input.",
+  "pictureoftheday-lookup-submit": "Text on the date lookup submit button.",
+  "pictureoftheday-lookup-invalid-date": "Error shown for an invalid lookup date. $1 is the supplied date.",
+  "pictureoftheday-lookup-result-heading": "Heading above a date lookup result. $1 is the formatted date.",
+  "pictureoftheday-lookup-assumption": "Notice explaining that the result can change if the queue or overrides are edited."
 }
