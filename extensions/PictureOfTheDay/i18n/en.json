@@ -1,0 +1,12 @@
+{
+  "@metadata": {
+    "authors": [
+      "Joshua Lawson"
+    ]
+  },
+  "davispediapotd-desc": "Adds a locally scheduled picture-of-the-day component for Davispedia.",
+  "davispediapotd-not-scheduled": "No picture of the day has been scheduled.",
+  "davispediapotd-invalid-file": "The picture-of-the-day entry does not specify a valid file.",
+  "davispediapotd-default-alt": "Picture of the day",
+  "davispediapotd-file-details": "Image details and license"
+}

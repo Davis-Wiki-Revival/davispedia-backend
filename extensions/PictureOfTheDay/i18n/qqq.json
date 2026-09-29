@@ -1,0 +1,12 @@
+{
+  "@metadata": {
+    "authors": [
+      "Joshua Lawson"
+    ]
+  },
+  "davispediapotd-desc": "{{desc|name=DavispediaPictureOfTheDay|url=https://davispedia.org/}}",
+  "davispediapotd-not-scheduled": "Shown when neither today's scheduled page nor the fallback page exists.",
+  "davispediapotd-invalid-file": "Shown when an entry has no valid file attribute.",
+  "davispediapotd-default-alt": "Default alternative text for a picture when no alt attribute is supplied.",
+  "davispediapotd-file-details": "Label for a link to the file description and licensing page."
+}
